@@ -1,0 +1,349 @@
+﻿@{
+    ViewData["Title"] = "Autenticar";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+
+
+
+<div class="font-[sans-serif]">
+    <div class="min-h-screen flex flex-col items-center justify-center">
+        <div class="grid md:grid-cols-2 items-center gap-4 max-md:gap-8 max-w-6xl max-md:max-w-lg w-full p-4 m-4 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-md bg-white">
+            <div class="md:max-w-md w-full px-4 py-4">
+
+                <div class="mb-12">
+                    <h3 class="text-teal-700 text-3xl font-extrabold">Inicio de Sesión</h3>
+                    <p class="text-sm mt-4 text-gray-800">No tienes cuenta? <a href="javascript:void(0);" id="btnRegistro" class="text-teal-600 font-semibold hover:underline ml-1 whitespace-nowrap">Registrarse aquí</a></p>
+                </div>
+
+                <div>
+                    <label class="text-gray-800 text-xs block mb-2">Cédula</label>
+                    <div class="relative flex items-center">
+                        <input name="cedula" id="txtCedula" type="text" required class="w-full text-gray-800 text-sm border-b border-gray-300 focus:border-blue-600 px-2 py-3 outline-none" placeholder="Ingresar cédula" />
+     
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <label class="text-gray-800 text-xs block mb-2">Contraseña</label>
+                    <div class="relative flex items-center">
+                        <input name="password" id="txtContrasenia" type="password" required class="w-full text-gray-800 text-sm border-b border-gray-300 focus:border-blue-600 px-2 py-3 outline-none" placeholder="Ingresar contraseña" />
+                    </div>
+                </div>
+
+                <div class="mt-12">
+                    <button type="button" onclick="VerificarUsuario();" class="w-full shadow-xl py-2.5 px-4 text-sm tracking-wide rounded-md text-white bg-teal-600 hover:bg-sky-950 focus:outline-none">
+                        Iniciar Sesión
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="md:h-full bg-[#082f49] rounded-xl lg:p-12 p-8">
+                <img src="https://readymadeui.com/signin-image.webp" class="w-full h-full object-contain" alt="login-image" />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Inicio Modal-->
+<div class="modal" tabindex="-1" id="Modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Registro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-2">
+                    <label>Cédula</label>
+                    <input type="number" class="form-control" id="txtCedulaRegistro" placeholder="#" maxlength="20" />
+                </div>
+                <div class="mb-2">
+                    <label>Nombre Completo</label>
+                    <input type="text" class="form-control" id="txtNombre" placeholder="Nombre Completo" maxlength="100" />
+                </div>
+                <div class="mb-2">
+                    <label>Perfil</label>
+                    <select class="form-select" id="txtIdPerfil" name="txtIdPerfil">
+                        <option value="-1" selected>Seleccione</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label>Tienda</label>
+                    <select class="form-select" id="txtIdTienda" name="txtIdTienda">
+                        <option value="-1" selected>Seleccione</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label>Contraseña</label>
+                    <input type="password" class="form-control" id="txtContraseniaR1" placeholder="********" maxlength="100" />
+                </div>
+                <div class="mb-2">
+                    <label>Repetir Contraseña</label>
+                    <input type="password" class="form-control" id="txtContraseniaR2" placeholder="********" maxlength="100" />
+                </div>
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="bg-grupocs1 hover:bg-grupocs1hoover text-white py-2 px-3 mb-2 block rounded shadow" style="width:48%" id="btnGuardar" title="Guardar Registro" onclick="Registrarse();">
+                    <i class="bi bi-floppy2-fill"></i> Registrarse
+                </button>
+                <button type="button" class="bg-grupocs1 hover:bg-grupocs1hoover text-white py-2 px-3 mb-2 block rounded shadow" style="width:48%" data-bs-dismiss="modal" title="Cancelar">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        /// Método inicial
+        $(document).ready(() => { ObtenerPerfiles(); ObtenerTiendas(); })
+
+
+        /// Valida el usuario
+        function VerificarUsuario() {
+
+            // Crear el login DTO
+            const ModeloLogin = {
+                cedula: $('#txtCedula').val(),
+                contrasenia: $('#txtContrasenia').val()
+            };
+
+
+            // AJAX request
+            fetch('/User/LogIn', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+                body: JSON.stringify(ModeloLogin)
+            })
+            .then(response => {
+
+                    var Mensaje = "";
+
+                if (response.ok) {
+
+                    window.location.href = '/Empleados/Index'; // Redirige a la página principal
+
+                } else {
+
+                    Mensaje = "Usuario y/o contraseña incorrecta!";
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "center",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: toast => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    Toast.fire({
+                        icon: "error",
+                        iconColor: '#0C4A6E',
+                            title: Mensaje
+                    });
+
+                }
+            })
+            .then(data => {
+                // Handle the successful login response
+                console.log(data);
+            })
+            .catch(error => {
+                // Handle the error
+                console.error(error);
+            });
+
+        }
+
+
+        /* Abrir Modal *************************************************************************************************/
+
+        const ModeloBase = {
+            cedula: "",
+            nombre: "",
+            idPerfil: "-1",
+            idTienda: "-1",
+            contrasenia: ""
+        }
+
+        /// Nuevo registro
+        $("#btnRegistro").click(() => { AbrirModal(ModeloBase); })
+
+
+        /* Registrarse *************************************************************************************************/
+
+        /// Registrar un Usuario
+        function Registrarse() {
+
+            var contrasenia1 = $("#txtContraseniaR1").val();
+            var contrasenia2 = $("#txtContraseniaR2").val();
+
+            if(contrasenia1 != contrasenia2) return alert("NO");
+
+            let NuevoModelo = {
+                cedula: $("#txtCedulaRegistro").val(),
+                nombre: $("#txtNombre").val(),
+                idPerfil: $("#txtIdPerfil").val(),
+                idTienda: $("#txtIdTienda").val(),
+                contrasenia: contrasenia1
+            };
+
+
+            // AJAX request
+            fetch('/User/Registro', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(NuevoModelo)
+            })
+            .then(response => {
+
+                if (!response.ok) {
+                    return response.json().then(errors => {
+
+                        console.log('Validation errors:', errors);
+
+                        var errorMessage = "";
+
+                        Object.keys(errors).forEach(key => {
+                            errorMessage += errors[key].join('\n') + '\n';
+                        });
+
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: "center",
+                            showConfirmButton: true,
+                            confirmButtonColor: '#0C4A6E',
+                            timer: 0,
+                            timerProgressBar: false,
+                            didOpen: toast => {
+                                toast.onmouseenter = Swal.stopTimer;
+                                toast.onmouseleave = Swal.resumeTimer;
+                            }
+                        });
+                        Toast.fire({
+                            icon: "error",
+                            iconColor: '#0C4A6E',
+                            title: errorMessage
+                        });
+
+                        throw new Error('Validation errors occurred');
+                    });
+                }
+
+                var Mensaje = "";
+
+                if (response.ok) {
+
+                    $('.modal').modal('hide');
+
+                    Mensaje = "Gracias por su registro!";
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'center',
+                        showConfirmButton: true,
+                        timer: 0,
+                        width: '400px'
+                    });
+                    Toast.fire({
+                        icon: 'success',
+                            title: Mensaje
+                    });
+
+                }
+
+            })
+            .then(data => {
+                // Handle the successful login response
+                console.log(data);
+            })
+            .catch(error => {
+                // Handle the error
+                console.error(error);
+            });
+
+        }
+
+        /* Llenar select ****************************************************************************/
+
+        /// Perfiles
+        function ObtenerPerfiles() 
+        {
+            // Fetch
+            fetch("@Url.Content("~/Perfiles/Lista")", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                const selectElement = document.getElementById('txtIdPerfil');
+
+                // Agrega las nuevas opciones
+                data.data.forEach((item) => {
+                    const option = document.createElement('option');
+                    option.value = item.idPerfil;
+                    option.text = item.perfil;
+                    selectElement.add(option);
+                });
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+
+        /// Tiendas
+        function ObtenerTiendas() 
+        {
+            // Fetch
+            fetch("@Url.Content("~/Tiendas/Lista")", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                const selectElement = document.getElementById('txtIdTienda');
+
+                // Agrega las nuevas opciones
+                data.data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.idTienda;
+                    option.text = item.tienda1;
+                    selectElement.add(option);
+                });
+
+                
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+
+    </script>
+
+}

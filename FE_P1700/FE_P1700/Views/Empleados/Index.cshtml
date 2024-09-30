@@ -1,0 +1,304 @@
+﻿@{
+    ViewData["Title"] = "Empleados";
+}
+
+
+
+<!--Inicio tarjeta --> 
+<div class="card">
+
+    <div class="card-body space-y-4">
+
+        <h1 class="text-2xl font-medium">Empleados</h1>
+
+        <button class="bg-grupocs1 hover:bg-grupocs1hoover text-white py-2 px-3 mb-2 block w-auto rounded shadow" id="btnNuevo" title="Nuevo Registro">
+            <i class="bi bi-plus-lg"></i> Empleado
+        </button>
+
+        <hr />
+
+        <table id="table" class="table min-w-full text-nowrap table-borderless table-striped table-hover align-middle mb-0 bg-white text-sm font-light"></table>
+
+    </div>
+
+</div>
+<!--Fin tarjeta-->
+
+<!--Inicio Modal-->
+<div class="modal" tabindex="-1" id="Modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle Empleado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="txtIdEmpleado" value="0" />
+
+                <div class="mb-2">
+                    <label>Nombre Completo</label>
+                    <input type="text" class="form-control" id="txtNombre" placeholder="Nombre Completo" maxlength="100" />
+                </div>
+                <div class="mb-2">
+                    <label>Télefono</label>
+                    <input type="number" class="form-control" id="txtTelefono" placeholder="#" maxlength="20" />
+                </div>
+                <div class="mb-2">
+                    <label>Salario</label>
+                    <input type="number" class="form-control" id="txtSalario" placeholder="0.00" maxlength="20" />
+                </div>
+
+                <div class="mb-2">
+                    <label>Tienda</label>
+                    <select class="form-select" id="txtIdTienda" name="txtIdTienda">
+                        <option value="-1" selected>Seleccione</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label>Es Supervisor?</label>
+                    <select class="form-select" id="txtEsSupervisor">
+                        <option value="true">Sí</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label>Usuario</label>
+                    <select class="form-select" id="txtIdUsuario" name="txtIdUsuario"> </select>
+                </div>
+                <div class="mb-2">
+                    <label>Supervisor</label>
+                    <select class="form-select" id="txtIdSupervisor" name="txtIdSupervisor"> </select>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="bg-grupocs1 hover:bg-grupocs1hoover text-white py-2 px-3 mb-2 block rounded shadow" style="width:48%" id="btnGuardar" title="Guardar Registro">
+                    <i class="bi bi-floppy2-fill"></i> Guardar
+                </button>
+                <button type="button" class="bg-grupocs1 hover:bg-grupocs1hoover text-white py-2 px-3 mb-2 block rounded shadow" style="width:48%" data-bs-dismiss="modal" title="Cancelar">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--Fin Modal-->
+@section Scripts {
+
+    <script>
+
+        var tabla = $("#table");
+
+        /// Método inicial
+        $(document).ready(() => { CargarTabla(); ObtenerUsuarios(); ObtenerTiendas(); ObtenerSupervisores(); })
+
+        const ModeloBase = {
+            idEmpleado: 0,
+            nombre: "",
+            telefono: "",
+            salario: 0,
+            idUsuario: 0,
+            idTienda: -1,
+            idSupervisor: 0,
+            esSupervisor: "false"
+        }
+
+
+        /* Cargar DataTable **********************************************************************************/
+
+        /// Cargar datos en DataTable
+        function CargarTabla() {
+
+            LlamarTabla(tabla, 'Lista', columnas, definicionColumnas, false);
+
+        }
+
+        const columnas = [
+            { width: null, title: 'idEmpleado', data: 'idEmpleado' },
+            { width: '40%', title: 'Nombre', data: 'nombre' },
+            { width: '15%', title: 'Telefono', data: 'telefono' },
+            { width: '15%', title: 'Salario', data: 'salario' },
+            { width: '5%', title: 'idUsuario', data: 'idUsuario' },
+            { width: '5%', title: 'idTienda', data: 'idTienda' },
+            { width: '5%', title: 'idSupervisor', data: 'idSupervisor' },
+            { width: '15%', title: 'Acciones', data: '' }
+        ];
+
+
+        const definicionColumnas = [
+            { targets: 0, visible: false }, // Hace no visible la primera columna
+            {
+                targets: -1, // Selecciona la última columna
+                data: null,
+                render: function (data, type, row) { // Agrega botones
+                    return `
+                        <button class="bg-grupocs1 hover:bg-grupocs1hoover text-white py-2 px-3 rounded shadow"
+                        onclick="Edtar(` + row.idEmpleado + `,'` + row.nombre +
+                        `','` + row.telefono + `','` + row.salario + `','` + row.idUsuario +
+                        `','` + row.idTienda + `','` + row.idSupervisor + `','` + row.esSupervisor + `')"><i class="bi bi-pencil-square"></i></button>
+
+                        <button class="bg-grupocs1 hover:bg-grupocs1hoover text-white py-2 px-3 rounded shadow"
+                        onclick="Eliminar(` + row.idEmpleado + `)"><i class="bi bi-trash3"></i></button>
+
+                        `;
+                }
+            }
+        ];
+
+
+        /* Abrir Modal *************************************************************************************************/
+
+        /// Nuevo registro
+        $("#btnNuevo").click(() => { AbrirModal(ModeloBase); })
+
+
+        /// Editar registro
+        function Edtar(idEmpleado, nombre, telefono, salario, idUsuario, idTienda, idSupervisor, esSupervisor) {
+
+            // Supongamos que estos son los datos del registro que deseas editar
+            const datosRegistro = {
+                idEmpleado: idEmpleado,
+                nombre: nombre,
+                telefono: telefono,
+                salario: salario,
+                idUsuario: idUsuario,
+                idTienda: idTienda,
+                idSupervisor: idSupervisor,
+                esSupervisor: esSupervisor
+            };
+
+            // Llamada a la función editarRegistro con los datos del registro
+            AbrirModal(datosRegistro);
+        }
+
+
+        /* Guardar Registro *************************************************************************************************/
+
+
+        $("#btnGuardar").click(() => {
+
+            let esSupervisor = false;
+            if ($("#txtEsSupervisor").val() == "true") esSupervisor = true;
+
+            let NuevoModelo = {
+                idEmpleado: $("#txtIdEmpleado").val(),
+                nombre: $("#txtNombre").val(),
+                telefono: $("#txtTelefono").val(),
+                salario: $("#txtSalario").val(),
+                idUsuario: $("#txtIdUsuario").val(),
+                idTienda: $("#txtIdTienda").val(),
+                idSupervisor: $("#txtIdSupervisor").val(),
+                esSupervisor: esSupervisor
+            };
+
+            GuardarRegistro(NuevoModelo.idEmpleado === "0" ? "Create" : "Update", NuevoModelo, NuevoModelo.idEmpleado);
+        });
+
+
+        /* Eliminar Registro *******************************************************************************/
+
+        function Eliminar(codigo) { EliminarRegistro(codigo); }
+
+
+        /* Llenar select ****************************************************************************/
+
+        /// Usuarios
+        function ObtenerUsuarios() 
+        {
+            // Fetch
+            fetch("@Url.Content("~/Usuarios/Lista")", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                const selectElement = document.getElementById('txtIdUsuario');
+
+                // Agrega las nuevas opciones
+                data.data.forEach((item) => {
+                    const option = document.createElement('option');
+                    option.value = item.idUsuario;
+                    option.text = item.cedula;
+                    selectElement.add(option);
+                });
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+
+        /// Tiendas
+        function ObtenerTiendas() 
+        {
+            // Fetch
+            fetch("@Url.Content("~/Tiendas/Lista")", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                const selectElement = document.getElementById('txtIdTienda');
+
+                // Agrega las nuevas opciones
+                data.data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.idTienda;
+                    option.text = item.tienda1;
+                    selectElement.add(option);
+                });
+
+                
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+
+        /// Empleados
+        function ObtenerSupervisores() 
+        {
+            // Fetch
+            fetch("@Url.Content("~/Empleados/Lista")", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                const selectElement = document.getElementById('txtIdSupervisor');
+
+                // Agrega las nuevas opciones
+                data.data.forEach((item) => {
+                    const option = document.createElement('option');
+                        option.value = item.idEmpleado;
+                    option.text = item.nombre;
+                    selectElement.add(option);
+                });
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+    </script>
+
+}

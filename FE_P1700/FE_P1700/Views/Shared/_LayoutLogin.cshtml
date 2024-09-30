@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FE_P1700</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+
+</head>
+<body class="bg-gradient-to-r from-sky-950 to-teal-600">
+    <!------------------------------------------------------------------------------------------------------------------>
+
+    <div class="container">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <div id="DivParaModals"> </div>
+
+
+    <!------------------------------------------------------------------------------------------------------------------>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="~/js/tailwindcss.js"></script>
+    <script src="~/js/tailwind-config.js"></script>
+    <script src="~/js/sweetalert2.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

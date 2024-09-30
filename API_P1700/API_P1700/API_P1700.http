@@ -1,0 +1,6 @@
+@API_P1700_HostAddress = http://localhost:5228
+
+GET {{API_P1700_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

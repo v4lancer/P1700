@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "1qkhiYi8If8=",
+  "success": true,
+  "projectFilePath": "X:\\PRIDES\\P1700\\FE_P1700\\FE_P1700.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\heine\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\heine\\.nuget\\packages\\restsharp\\112.0.0\\restsharp.112.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
